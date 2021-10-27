@@ -1,0 +1,62 @@
+
+.antd-margin-right-08{
+    margin-right: 8px;
+}
+.antd-text-border-color-blue{
+    color: #1890ff;
+    border-color: #1890ff;
+}
+.antd-margin-bottom-08{
+    margin-bottom: 8px;
+}
+.upload-list-inline .ant-upload-list-item {
+    float: left;
+    width: 200px;
+    margin-right: 8px;
+}
+
+.upload-list-inline [class*='-upload-list-rtl'] .ant-upload-list-item {
+    float: right;
+}
+.Image{
+    padding-right: 4px;
+    width: 200px;
+    height: 200px;
+}
+.text-align-center{
+    text-align: center;
+}
+.folder-style{
+    color: #dec778;
+}
+
+/*登录样式*/
+.Login-box{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 68px;
+}
+.login-form {
+    max-width: 320px;
+    overflow: hidden;
+}
+.login-form-forgot {
+    float: right;
+}
+.ant-col-rtl .login-form-forgot {
+    float: left;
+}
+.login-form-button {
+    width: 100%;
+}
+
+/*注册样式*/
+.register-box{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 68px;
+}
