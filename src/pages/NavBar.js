@@ -5,9 +5,10 @@ import {Redirect, Route, Switch} from "react-router-dom";
 import RouterList from "../RouterList";
 import MyNavLink from "../component/MyNavLink/MyNavLink";
 import Login from "../Login";
+import Logo from "../img/cloud-sync.svg";
 
 const {SubMenu} = Menu;
-const {Content, Footer, Sider} = Layout;
+const {Content, Sider, Header} = Layout;
 export default class NavBar extends React.Component {
     constructor(props) {
         super(props);
@@ -32,10 +33,19 @@ export default class NavBar extends React.Component {
 
     render() {
         const {openKeys, selectedMenuKey} = this.state;
+        let folder = RouterList.find(objList => objList.key === 1);
+        let child = folder.children;
+        console.log(child);
         return (
             <React.Fragment>
                 <Layout>
-                    <Content style={{padding: '0 50px'}}>
+                    <Header className='header'>
+                        <div className='logo'>
+                            <img src={Logo} alt='' style={{width: 142, height: 32, margin: "0 0 38px -48px"}}/>
+                            <span>壹度网盘</span>
+                        </div>
+                    </Header>
+                    <Content>
                         <Layout className="site-layout-background" style={{padding: '24px 0'}}>
                             <Sider className="site-layout-background" width={200}>
                                 <Menu
@@ -47,8 +57,8 @@ export default class NavBar extends React.Component {
                                     style={{height: '100%'}}
                                 >
                                     <SubMenu key="sub1" icon={<UserOutlined/>} title="我的文件">
-                                        {RouterList.map((list, index) =>
-                                            <Menu.Item key={`${index}+1`}>
+                                        {RouterList.map(list =>
+                                            <Menu.Item key={list.key}>
                                                 <MyNavLink to={list.path}>{list.title}</MyNavLink>
                                             </Menu.Item>)}
                                     </SubMenu>
@@ -58,18 +68,19 @@ export default class NavBar extends React.Component {
                                     </SubMenu>
                                 </Menu>
                             </Sider>
-                            <Content style={{padding: '0 24px', minHeight: 280}}>
+                            <Content style={{margin: '0 24px 24', minHeight: 280}}>
                                 <Switch>
                                     {
-                                       window.sessionStorage.getItem('token')? RouterList.map((item, index) =>
-                                            <Route key={index + 1} path={item.path} component={item.component}/>):<Redirect to='/login' component={Login}/>
+                                        window.sessionStorage.getItem('token') ? RouterList.map(item =>
+                                                <Route key={item.key} path={item.path} component={item.component}/>) :
+                                            <Redirect to='/login' component={Login}/>
                                     }
                                     <Route miss component={RouterList[0].component}/>
                                 </Switch>
                             </Content>
+
                         </Layout>
                     </Content>
-                    <Footer style={{textAlign: 'center'}}>personal net work location ©2021 Created by Charlie</Footer>
                 </Layout>
             </React.Fragment>
         )

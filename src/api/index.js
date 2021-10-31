@@ -16,7 +16,7 @@ export const register=(username,password)=>ajax({
         "username": username,
         "password": password
     }
-})
+});
 
 export const myFiles = () => ajax({
     url: '/netdisk/nextList',
@@ -29,18 +29,33 @@ export const _deleteOk = (data) => ajax({
     method: 'post',
     data
 });
+
 export const picList = () => ajax({
     url: '/netdisk/nextList?type=1',
     method: 'post',
     data: {}
 });
+
 export const docList=()=>ajax({
     url:'/netdisk/nextList?type=2',
     method:'post',
     data:{}
 });
+
 export const videoList=(data)=>ajax({
     url:'/netdisk/nextList',
     method:'post',
     data,
+});
+
+export const addFolder=(data)=>ajax({
+    url:'/netdisk/addFolder',
+    method:'post',
+    data
+});
+
+export const _rename=(data)=>ajax({
+    url:'/netdisk/reNameFolder',
+    method:'post',
+    data
 })

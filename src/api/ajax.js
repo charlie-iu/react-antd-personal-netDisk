@@ -8,7 +8,6 @@ const service = axios.create({
 
 // 添加请求拦截器
 service.interceptors.request.use(config => {
-    console.log('config',config);
     let token = window.sessionStorage.getItem('token');
     if (token) {
         config.headers["Authorization"] = token;
