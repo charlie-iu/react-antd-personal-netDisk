@@ -58,4 +58,10 @@ export const _rename=(data)=>ajax({
     url:'/netdisk/reNameFolder',
     method:'post',
     data
+});
+
+export const nextFolderReq=(data)=>ajax({
+    url:'/netdisk/nextList',
+    method:'post',
+    data
 })

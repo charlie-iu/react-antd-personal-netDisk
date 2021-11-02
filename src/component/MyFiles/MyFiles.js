@@ -1,8 +1,8 @@
 import React, {useState, useEffect} from "react";
-import {Button, Table, Space, Image, Modal, message, Upload, ConfigProvider, Input, Tree} from "antd";
-import zhCN from 'antd/es/locale/zh_CN';
-import {CloudUploadOutlined, FolderAddOutlined} from "@ant-design/icons";
-import {myFiles, _deleteOk, addFolder, _rename} from '../../api/index';
+import {Link} from "react-router-dom";
+import {Table, Space, Image} from "antd";
+import {DeleteOutlined} from "@ant-design/icons";
+import {myFiles} from '../../api/index';
 import Utils from "../../common/Utils/Utils";
 import folderPng from "../../img/folder.png";
 import txtPng from "../../img/txt.png";
@@ -14,23 +14,23 @@ import zipPng from "../../img/zip.png";
 import picPng from "../../img/picture.png";
 import filePng from "../../img/file.png";
 import videoPng from "../../img/VIDEO.png";
+import DownLoad from "../../common/DownLoad";
+import ReName from "../../common/ReName";
+import Delete from "../../common/Delete";
+import NewFolder from "../../common/NewFolder";
+import SelectFileOrFolder from "../../common/SelectFileOrFolder/SelectFileOrFolder";
 
-const {DirectoryTree} = Tree;
 
 function MyFiles(props) {
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [tData, setTData] = useState(0);
-    const [deleteVisible, setDeleteVisible] = useState(false);
     const [totalPage, setTotalPage] = useState(1);
     const [pageSize, setPageSize] = useState(1);
     const [pageNum, setPageNum] = useState(1);
-    const [newFolderFlag, setNewFolderFlag] = useState(false);
     const [newNameValue, setNameValue] = useState('新建文件夹');
-    const [renameModal, setRenameModal] = useState(false);
-    const [renameValue, setRenameValue] = useState(newNameValue);
     const rowSelection = {
         selectedRowKeys,
-        onChange: (selectedRowKeys) => {
+        onChange: selectedRowKeys => {
             setSelectedRowKeys(selectedRowKeys);
         }
     }
@@ -49,7 +49,7 @@ function MyFiles(props) {
                 window.timer = null;
             }
         }
-    }, [props.match.params.tData]);
+    }, []);
 
     async function initEntry() {
         try {
@@ -63,56 +63,6 @@ function MyFiles(props) {
         }
     }
 
-    function showDeleteModal() {
-        setDeleteVisible(true);
-    }
-
-
-    function deleteCancel() {
-        setDeleteVisible(false);
-    }
-
-    function showRenameModal() {
-        setRenameModal(true);
-    }
-
-    function renameCancel() {
-        setRenameModal(false);
-    }
-
-    async function deleteOk(id) {
-        let target = tData.find(data => Number(data.dataId) === Number(id));
-        let formData = new FormData();
-        switch (target.sourceType) {
-            case 'FOLDER':
-                formData.append('folderIds', id);
-                break;
-            case 'FILE':
-                formData.append('fileIds', id);
-                break;
-            default:
-                break;
-        }
-        try {
-            await _deleteOk(formData);
-            await initEntry();
-        } catch (err) {
-            return Promise.reject(err);
-        }
-        setDeleteVisible(false);
-    }
-
-    function uploadChange(info) {
-        if (info.file.status === 'done') {
-            message.success(`${info.file.name}上传成功!`);
-            this.timer = setInterval(() => {
-                window.location.reload();
-            }, 2000)
-        } else if (info.file.status === 'error') {
-            message.error(`${info.file.name}上传失败!`);
-        }
-    }
-
     async function ShowPageSizeChange(current, pageSize) {
         let pageNum = current;
         let _pageSize = pageSize;
@@ -121,78 +71,6 @@ function MyFiles(props) {
         await initEntry();
     }
 
-    function showNewFolder() {
-        setNewFolderFlag(true);
-    }
-
-    async function newFolder(id, name) {
-        let formData = new FormData();
-        formData.append('folderId', id ? id : 0);
-        formData.append('folderName', name);
-        try {
-            await addFolder(formData);
-            await initEntry();
-        } catch (err) {
-            return Promise.reject(err);
-        }
-        setNewFolderFlag(false);
-    }
-
-    function cancelNewFolder() {
-        setNewFolderFlag(false);
-    }
-
-    function folderNameChange(e) {
-        setNameValue(e.target.value);
-    }
-
-    async function rename(id) {
-        let target = tData.find(data => Number(data.dataId) === Number(id));
-        let formData = new FormData();
-        if (id.length > 1) {
-            message.warn('请单独勾选!');
-            return;
-        }
-        if (renameValue === '') {
-            message.warn('名称为空!');
-            return;
-        }
-        if (renameValue === target.name) {
-            // 这里逻辑有问题
-            message.warn('名称未改变!');
-            return;
-        }
-
-        switch (target.sourceType) {
-            case 'FOLDER':
-                formData.append('folderId', id);
-                formData.append('folderName', renameValue)
-                break;
-            case 'FILE':
-                formData.append('fileId', id);
-                formData.append('fileName', renameValue);
-                break;
-            default:
-                break;
-        }
-        try {
-            await _rename(formData)
-            await initEntry();
-        } catch (err) {
-            return Promise.reject(err);
-        }
-        setRenameModal(false);
-    }
-
-    async function renameChange(id, e) {
-        // 先获取文件夹原来的名称，
-        let target = tData.find(data => Number(data.dataId) === Number(id));
-        setRenameValue(target.name);
-        if (e.target.value !== target.name) {
-            setRenameValue(e.target.value);
-        }
-        await initEntry();
-    }
 
     const columns = [{
         title: '序号',
@@ -208,7 +86,7 @@ function MyFiles(props) {
                     return (
                         <Space>
                             <Image width={25} height={25} src={folderPng} preview={false}/>
-                            <span>{text}</span>
+                            <Link to={`/myfiles/nextFolder/${record.dataId}/${record.name}`}>{text}</Link>
                         </Space>
                     )
                 default:
@@ -307,122 +185,52 @@ function MyFiles(props) {
         render: (id, record) => {
             return (
                 <>
+                    {/* 文件夹暂不支持下载*/}
                     <Space>
-                        <a href={`http://47.119.129.231:8082/netdisk/download?fileId=${id}`}>
-                            <Button
-                                type='primary'
-                                size='small'
-                                shape='round'>
-                                下载
-                            </Button>
-                        </a>
-
-                        <Button type='primary'
-                                size='small'
-                                shape='round'
-                                onClick={showRenameModal}>重命名</Button>
-
-
-                        <Button type='danger' size='small' shape='round'
-                                onClick={showDeleteModal}>删除</Button>
+                        <DownLoad id={id} type={record.sourceType}/>
+                        <ReName tData={tData} selectedRowKeys={selectedRowKeys} initEntry={initEntry}
+                                newNameValue={newNameValue}/>
+                        <Delete title={'删除'} type={'danger'} shape={'round'} selectedRowKeys={selectedRowKeys}
+                                initEntry={initEntry}/>
                     </Space>
-                    <Modal
-                        title={<span>确认删除?</span>}
-                        visible={deleteVisible}
-                        onOk={selectedRowKeys.length > 0 ? deleteOk.bind(this, selectedRowKeys) : deleteCancel}
-                        onCancel={deleteCancel}
-                        cancelText='取消'
-                        okText='确认'
-                        destroyOnClose={true}
-                        mask={false}
-                    >
-                        {
-                            selectedRowKeys.length > 0 ? <p>删除后不可还原哦！</p> : <p>请先勾选删除项!</p>
-                        }
-                    </Modal>
-                    <Modal
-                        width={300}
-                        title={<span>请重命名</span>}
-                        visible={renameModal}
-                        onOk={rename.bind(this, selectedRowKeys)}
-                        onCancel={renameCancel}
-                        cancelText='取消'
-                        okText='确认'
-                        destroyOnClose={true}
-                        mask={false}
-                    >
-                        {
-                            selectedRowKeys.length === 0 && <p>请先勾选!</p>
-                        }
-                        {
-                            selectedRowKeys.length === 1 &&
-                            < Input value={renameValue} onChange={renameChange.bind(this, selectedRowKeys)}/>
-                        }
-                        {
-                            selectedRowKeys.length > 1 && <p>请单独勾选!</p>
-                        }
 
-                    </Modal>
                 </>
             )
         }
     }
     ]
+
     return (
         <>
-            <ConfigProvider locale={zhCN}>
-                <div style={{display: 'inline-block'}}>
-                    <Upload
-                        headers={{Authorization: window.sessionStorage.getItem('token')}}
-                        action="/netdisk/upload"
-                        className="upload-list-inline"
-                        multiple
-                        onChange={uploadChange}
-                    >
-                        <Button className="antd-margin-right-08 antd-text-border-color-blue antd-margin-bottom-08"
-                                icon={<CloudUploadOutlined/>}>上传</Button>
-                    </Upload>
-                </div>
-                <Button onClick={showNewFolder}
-                        className="antd-margin-right-08 antd-text-border-color-blue antd-margin-bottom-08"
-                        icon={<FolderAddOutlined/>}
-                >
-                    新建
-                </Button>
-                <Table
-                    rowSelection={rowSelection}
-                    columns={columns}
-                    dataSource={tData}
-                    rowKey='dataId'
-                    pagination={{
-                        size: 'small',
-                        showSizeChanger: true,
-                        showQuickJumper: true,
-                        pageSize,
-                        total: totalPage,
-                        current: pageNum,
-                        onChange: async current => {
-                            setPageNum(current);
-                            await initEntry();
-                        },
-                        onShowSizeChange: ShowPageSizeChange
-                    }}
-                />
-                <Modal
-                    width={280}
-                    title={<span>请输入文件夹名称</span>}
-                    visible={newFolderFlag}
-                    onOk={newFolder.bind(this, 0, newNameValue)}
-                    onCancel={cancelNewFolder}
-                    cancelText='取消'
-                    okText='确认'
-                    destroyOnClose={true}
-                    mask={false}
-                >
-                    <Input value={newNameValue} onChange={folderNameChange}/>
-                </Modal>
+            <SelectFileOrFolder/>
+            <NewFolder initEntry={initEntry}/>
+            {
+                selectedRowKeys.length > 1 ?
+                    <Delete icon={<DeleteOutlined/>} title={'批量删除'} type={'primary'}
+                            selectedRowKeys={selectedRowKeys}
+                            initEntry={initEntry}/> : null
+            }
 
-            </ConfigProvider>
+            <Table
+                rowSelection={rowSelection}
+                columns={columns}
+                dataSource={tData}
+                rowKey='dataId'
+                pagination={{
+                    size: 'small',
+                    showSizeChanger: true,
+                    showQuickJumper: true,
+                    pageSize,
+                    total: totalPage,
+                    current: pageNum,
+                    onChange: async current => {
+                        setPageNum(current);
+                        await initEntry();
+                    },
+                    onShowSizeChange: ShowPageSizeChange
+                }}
+            />
+
         </>
     )
 }

@@ -1,8 +1,11 @@
 import React from 'react';
 import {Table, Image, Modal, Button, Space} from 'antd';
 import {picList, _deleteOk} from '../../api/index';
-import {CloudDownloadOutlined} from "@ant-design/icons";
+import {CloudDownloadOutlined, DeleteOutlined} from "@ant-design/icons";
 import Utils from "../../common/Utils/Utils";
+import Delete from "../../common/Delete";
+import DownLoad from "../../common/DownLoad";
+import ReName from "../../common/ReName";
 
 
 export default class PictureList extends React.PureComponent {
@@ -15,7 +18,8 @@ export default class PictureList extends React.PureComponent {
             pageNum: 1,
             selectedRowKeys: [],
             deleteVisible: false,
-            addFolderVisible: false
+            addFolderVisible: false,
+            newNameValue:''
         }
     }
 
@@ -26,6 +30,7 @@ export default class PictureList extends React.PureComponent {
     initEntry = async () => {
         try {
            const res= await picList();
+            // console.log(res);
             this.setState({
                list:res.list
            })
@@ -75,7 +80,7 @@ export default class PictureList extends React.PureComponent {
 
 
     render() {
-        const {list, selectedRowKeys, pageNum, pageSize, deleteVisible} = this.state;
+        const {list, selectedRowKeys, pageNum, pageSize, deleteVisible,newNameValue} = this.state;
         const rowSelection = {
             selectedRowKeys,
             onChange: this.handleSelectChange
@@ -114,31 +119,15 @@ export default class PictureList extends React.PureComponent {
                     return (
                         <>
                             <Space>
-                                <a href={`http://47.119.129.231:8082/netdisk/download?fileId=${id}`} download>
-                                    <Button
-                                        type='primary'
-                                        size='small'
-                                        shape='round'>
-                                        下载
-                                    </Button>
-                                </a>
-                                <Button type='danger' size='small' shape='round'
-                                        onClick={this.handleShowDeleteModal}>删除</Button>
-                            </Space>
-                            <Modal
-                                title={<span>确认删除?</span>}
-                                visible={deleteVisible}
-                                onOk={selectedRowKeys.length > 0 ? this.handleDeleteOk.bind(this,selectedRowKeys) : this.handleDeleteCancel}
-                                onCancel={this.handleDeleteCancel}
-                                cancelText='取消'
-                                okText='确认'
-                                destroyOnClose={true}
-                                mask={false}
-                            >
                                 {
-                                    selectedRowKeys.length > 0 ? <p>删除后不可还原哦！</p> : <p>请先勾选删除项!</p>
+                                    // 文件夹暂不支持下载
+                                    record.sourceType === 'FOLDER' ? null : <DownLoad id={id}/>
                                 }
-                            </Modal>
+                                <ReName tData={list} selectedRowKeys={selectedRowKeys} initEntry={this.initEntry}
+                                        newNameValue={newNameValue}/>
+                                <Delete title={'删除'} type={'danger'} shape={'round'} selectedRowKeys={selectedRowKeys}
+                                        initEntry={this.initEntry}/>
+                            </Space>
                         </>
                     )
                 }
@@ -148,11 +137,12 @@ export default class PictureList extends React.PureComponent {
         return (
             <>
                 <Space>
-                    <Button className=" antd-text-border-color-blue"
-                            icon={<CloudDownloadOutlined/>}
-                            onClick={this.handleMultipleDownload.bind(this, selectedRowKeys)}
-                    >下载
-                    </Button>
+                    {
+                        selectedRowKeys.length > 1 ?
+                            <Delete icon={<DeleteOutlined/>} title={'批量删除'} type={'primary'}
+                                    selectedRowKeys={selectedRowKeys}
+                                    initEntry={this.initEntry}/> : null
+                    }
                 </Space>
 
                 <Table

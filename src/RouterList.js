@@ -2,13 +2,13 @@ import MyFiles from "./component/MyFiles/MyFiles";
 import Picture from "./component/Picture/Picture";
 import Doc from "./component/Doc/Doc";
 import Video from "./component/Video/Video";
-import NextFolder from "./component/NextFolder/NextFolder";
+import MyFileHome from "./component/MyFiles/Home";
 
 const routerList = [{
     key:1,
     title: '所有文件',
     path: '/myfiles',
-    component: MyFiles,
+    component: MyFileHome,
 }, {
     key:2,
     title: '图片',
