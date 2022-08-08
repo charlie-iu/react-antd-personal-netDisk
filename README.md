@@ -1,4 +1,5 @@
 # Getting Started with Create React App
+改仓库已被重制，移步至[这里](https://github.com/charlie-iu/net-disk)
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
